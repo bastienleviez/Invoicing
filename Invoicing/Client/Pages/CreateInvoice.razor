@@ -1,0 +1,154 @@
+﻿@page "/createInvoice"
+
+@inject HttpClient http
+
+@if (IsSuccess == 3)
+{
+    <h1>Create an invoice</h1>
+
+    <p>Erreur @errorMessage, la facture n'a pas pu être créée</p>
+
+    <EditForm Model="@newInvoice" OnValidSubmit="@HandleValidSubmit">
+
+        <div class="form-group">
+            <label>Client</label>
+            <div>
+                <InputText id="name" @bind-Value="@newInvoice.Customer" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Reference</label>
+            <div>
+                <InputText id="numero" @bind-Value="@newInvoice.Reference" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Expected date</label>
+            <div>
+                <InputDate id="dateExpected" @bind-Value="@newInvoice.Expected" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Amount</label>
+            <div>
+                <InputNumber id="amount" @bind-Value="@newInvoice.Amount" />
+            </div>
+        </div>
+
+        <button type="submit">Submit</button>
+        <button type="reset">Reset</button>
+    </EditForm>
+}
+else if (IsSuccess == 2)
+{
+    <h1>Create an invoice</h1>
+
+    <h2>Votre facture a bien été créée</h2>
+
+    <EditForm Model="@newInvoice" OnValidSubmit="@HandleValidSubmit">
+
+        <div class="form-group">
+            <label>Client</label>
+            <div>
+                <InputText id="name" @bind-Value="@newInvoice.Customer" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Reference</label>
+            <div>
+                <InputText id="numero" @bind-Value="@newInvoice.Reference" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Expected date</label>
+            <div>
+                <InputDate id="dateExpected" @bind-Value="@newInvoice.Expected" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Amount</label>
+            <div>
+                <InputNumber id="amount" @bind-Value="@newInvoice.Amount" />
+            </div>
+        </div>
+
+        <button type="submit">Submit</button>
+        <button type="reset">Reset</button>
+    </EditForm>
+
+}
+else
+{
+    <h1>Create an invoice</h1>
+
+
+    <EditForm Model="@newInvoice" OnValidSubmit="@HandleValidSubmit">
+
+        <div class="form-group">
+            <label>Client</label>
+            <div>
+                <InputText id="name" @bind-Value="@newInvoice.Customer" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Reference</label>
+            <div>
+                <InputText id="numero" @bind-Value="@newInvoice.Reference" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Expected date</label>
+            <div>
+                <InputDate id="dateExpected" @bind-Value="@newInvoice.Expected" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Amount</label>
+            <div>
+                <InputNumber id="amount" @bind-Value="@newInvoice.Amount" />
+            </div>
+        </div>
+
+        <button type="submit">Submit</button>
+        <button type="reset">Reset</button>
+    </EditForm>
+}
+
+
+@code {
+
+    private int currentCount = 0;
+    private Invoice newInvoice = new Invoice();
+    private EditContext editContext;
+    private int IsSuccess = 1;
+    private bool created = false;
+    private string errorMessage = "";
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(newInvoice);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        Console.Out.WriteLine(newInvoice.Customer);
+
+        DateTime td = DateTime.Now;
+        Invoice invoiceToCreate = new Invoice(newInvoice.Reference, newInvoice.Customer, newInvoice.Amount, td);
+
+        var response = await http.PostAsJsonAsync("api/Invoices", invoiceToCreate);
+
+        var statut = response.IsSuccessStatusCode;
+
+        if (statut)
+        {
+            IsSuccess = 2;
+        }
+        else
+        {
+            IsSuccess = 3;
+            errorMessage = response.ReasonPhrase;
+        }
+    }
+
+}
